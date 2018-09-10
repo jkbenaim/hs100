@@ -4,6 +4,11 @@
 #include <string.h>
 #include "comms.h"
 
+const char usage[] = 
+"usage: hs100 ip command-or-json\n"
+"where 'ip' is an IP address (ex. 192.168.1.1)\n"
+"and 'command' is one of the words 'on', 'off', or a blob of json\n";
+
 struct cmd_alias_s {
 	char *alias;
 	char *command;
@@ -37,6 +42,10 @@ char *get_cmd(char *needle)
 
 int main(int argc, char *argv[])
 {
+	if(argc != 3) {
+		fprintf(stderr, "%s", usage);
+		return 1;
+	}
 	char *plug_addr = argv[1];
 	char *cmd = argv[2];
 
