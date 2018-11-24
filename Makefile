@@ -1,6 +1,10 @@
 target  ?= hs100
 objects := $(patsubst %.c,%.o,$(wildcard *.c))
-CFLAGS=-Wall -Werror -std=c99 -ggdb -Os
+
+CFLAGS=-std=c99 -Os
+ifdef DEBUG
+CFLAGS+=-Wall -Werror -ggdb
+endif
 
 .PHONY: all
 all:	$(target)
