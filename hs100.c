@@ -2,64 +2,94 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+#include "version.h"
 #include "comms.h"
 
-const char usage[] = 
-"usage: hs100 ip command-or-json\n"
-"where 'ip' is an IP address (ex. 192.168.1.1)\n"
-"and 'command' is one of the words 'on', 'off', or a blob of json\n";
-
-struct cmd_alias_s {
-	char *alias;
+struct cmd_s {
 	char *command;
+	char *help;
+	char *json;
+	char *(*handler)(int argc, char *argv[]);
 	int end;
 };
-struct cmd_alias_s cmd_aliases[] = {
+struct cmd_s cmds[] = {
 	{
-		.alias = "off",
-		.command = "{\"system\":{\"set_relay_state\":{\"state\":0}}}",
+		.command = "factory-reset",
+		.help = "factory-reset\treset the plug to factory settings",
+		.json = "{\"system\":{\"reset\":{\"delay\":0}}}",
 	},
 	{
-		.alias = "on",
-		.command = "{\"system\":{\"set_relay_state\":{\"state\":1}}}",
+		.command = "off",
+		.help = "off\t\tturn the plug on",
+		.json = "{\"system\":{\"set_relay_state\":{\"state\":0}}}",
 	},
 	{
-		.alias = "reboot",
-		.command = "{\"system\":{\"reboot\":{\"delay\":0}}}",
+		.command = "on",
+		.help = "on\t\tturn the plug off",
+		.json = "{\"system\":{\"set_relay_state\":{\"state\":1}}}",
 	},
 	{
-		.alias = "reset-yes-really",
-		.command = "{\"system\":{\"reset\":{\"delay\":0}}}",
+		.command = "reboot",
+		.help = "reboot\t\treboot the plug",
+		.json = "{\"system\":{\"reboot\":{\"delay\":0}}}",
 	},
 	{
 		.end = 1,
 	},
 };
 
-char *get_cmd(char *needle)
+struct cmd_s *get_cmd_from_name(char *needle)
 {
 	int cmds_index = 0;
-	while(!cmd_aliases[cmds_index].end)
+	while(!cmds[cmds_index].end)
 	{
-		if(!strcmp(cmd_aliases[cmds_index].alias, needle))
-			return cmd_aliases[cmds_index].command;
+		if(!strcmp(cmds[cmds_index].command, needle))
+			return &cmds[cmds_index];
 		cmds_index++;
 	}
-	return needle;
+	return NULL;
+}
+
+void print_usage()
+{
+	fprintf(stderr, "hs100 version " VERSION_STRING ", Copyright (C) 2018 Jason Benaim.\n"
+			"A tool for using certain wifi smart plugs.\n"
+			"\n"
+			"usage: hs100 <ip> <command>\n"
+			"\n"
+			"Commands:\n"
+	);
+	int cmds_index = 0;
+	while(!cmds[cmds_index].end)
+	{
+		fprintf(stderr, "\t%s\n", cmds[cmds_index].help);
+		cmds_index++;
+	}
+	fprintf(stderr, "\n"
+			"Report bugs to https://github.com/jkbenaim/hs100\n"
+	);
 }
 
 int main(int argc, char *argv[])
 {
 	if(argc != 3) {
-		fprintf(stderr, "%s", usage);
+		print_usage();
 		return 1;
 	}
 	char *plug_addr = argv[1];
-	char *cmd = argv[2];
+	char *cmd_string = argv[2];
+	char *response;
 
-	cmd = get_cmd(cmd);
-	
-	char *response = hs100_send(plug_addr, cmd);
+	struct cmd_s *cmd = get_cmd_from_name(cmd_string);
+	if(cmd != NULL) {
+		if(cmd->handler != NULL)
+			response = cmd->handler(argc, argv);
+		else
+			response = hs100_send(plug_addr, cmd->json);
+	} else {
+		// command not recognized, so send it to the plug raw
+		response = hs100_send(plug_addr, cmd_string);
+	}
 	
 	if(response == NULL) {
 		fprintf(stderr, "failed to send command\n");
