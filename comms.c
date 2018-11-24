@@ -109,10 +109,6 @@ char *hs100_send(char *servaddr, char *msg)
 	recv(sock, recvbuf, 1023, 0);
 	char *recvmsg = hs100_decode(recvbuf, 1023);
 	close(sock);
-	if(recvmsg == NULL) {
-		free(s);
-		return NULL;
-	}
-
+	free(s);
 	return recvmsg;
 }
