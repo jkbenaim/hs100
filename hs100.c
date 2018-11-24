@@ -24,6 +24,14 @@ struct cmd_alias_s cmd_aliases[] = {
 		.command = "{\"system\":{\"set_relay_state\":{\"state\":1}}}",
 	},
 	{
+		.alias = "reboot",
+		.command = "{\"system\":{\"reboot\":{\"delay\":0}}}",
+	},
+	{
+		.alias = "reset-yes-really",
+		.command = "{\"system\":{\"reset\":{\"delay\":0}}}",
+	},
+	{
 		.end = 1,
 	},
 };
