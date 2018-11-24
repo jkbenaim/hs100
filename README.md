@@ -17,6 +17,7 @@ Command can be:
 - `off`: turn the power off
 - `reboot`: reboot the plug
 - `reset-yes-really`: factory reset the plug
+- `scan`: scan for nearby wifi APs (probably only 2.4 GHz ones)
 - Alternatively, you can supply a JSON string to be sent directly to the
 device. Note that the JSON string must be quoted, like so:
 `hs100 <ip> '{"system":{"set_relay_state":{"state":1}}}'`

@@ -34,6 +34,12 @@ struct cmd_s cmds[] = {
 		.json = "{\"system\":{\"reboot\":{\"delay\":0}}}",
 	},
 	{
+		.command = "scan",
+		.help = "scan\t\tscan for nearby wifi APs (probably only 2.4"
+			" GHz ones)",
+		.json = "{\"netif\":{\"get_scaninfo\":{\"refresh\":1}}}",
+	},
+	{
 		.end = 1,
 	},
 };
