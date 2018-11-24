@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include "comms.h"
 
+#define RECV_BUF_SIZE	4096
+
 bool hs100_encrypt(uint8_t *d, uint8_t *s, size_t len)
 {
 	if(d == NULL)
@@ -70,6 +72,10 @@ char *hs100_decode(uint8_t *s, size_t s_len)
 	uint32_t in_s_len;
 	memcpy(&in_s_len, s, 4);
 	in_s_len = ntohl(in_s_len);
+	if((s_len - 4) < in_s_len) {
+		// packet was cut short- adjust in_s_len
+		in_s_len = s_len - 4;
+	}
 
 	char *outbuf = calloc(1,in_s_len+1);
 
@@ -105,10 +111,12 @@ char *hs100_send(char *servaddr, char *msg)
 		return NULL;
 
 	send(sock, s, s_len, 0);
-	uint8_t recvbuf[1024];
-	recv(sock, recvbuf, 1023, 0);
-	char *recvmsg = hs100_decode(recvbuf, 1023);
-	close(sock);
 	free(s);
+	uint8_t recvbuf[RECV_BUF_SIZE];
+	size_t received_size = recv(sock, recvbuf, RECV_BUF_SIZE, 0);
+	close(sock);
+	if(received_size == 0)
+		return NULL;
+	char *recvmsg = hs100_decode(recvbuf, received_size);
 	return recvmsg;
 }
