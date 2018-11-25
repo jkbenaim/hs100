@@ -6,7 +6,7 @@
 
 char *handler_associate(int argc, char *argv[])
 {
-	if(argc < 6) {
+	if (argc < 6) {
 		fprintf(stderr, "not enough arguments\n");
 		exit(1);
 	}
@@ -18,7 +18,7 @@ char *handler_associate(int argc, char *argv[])
 	errno = 0;
 	char *endptr;
 	int key_type_num = (int)strtol(key_type, &endptr, 10);
-	if(errno || endptr == key_type) {
+	if (errno || endptr == key_type) {
 		fprintf(stderr, "invalid key type: %s\n", key_type);
 		exit(1);
 	}
@@ -41,7 +41,7 @@ char *handler_associate(int argc, char *argv[])
 
 char *handler_set_server(int argc, char *argv[])
 {
-	if(argc < 4) {
+	if (argc < 4) {
 		fprintf(stderr, "not enough arguments\n");
 		exit(1);
 	}

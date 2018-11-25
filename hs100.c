@@ -12,7 +12,7 @@ struct cmd_s {
 	char *command;
 	char *help;
 	char *json;
-	char *(*handler)(int argc, char *argv[]);
+	char *(*handler) (int argc, char *argv[]);
 	int end;
 };
 struct cmd_s cmds[] = {
@@ -67,9 +67,8 @@ struct cmd_s cmds[] = {
 struct cmd_s *get_cmd_from_name(char *needle)
 {
 	int cmds_index = 0;
-	while(!cmds[cmds_index].end)
-	{
-		if(!strcmp(cmds[cmds_index].command, needle))
+	while (!cmds[cmds_index].end) {
+		if (!strcmp(cmds[cmds_index].command, needle))
 			return &cmds[cmds_index];
 		cmds_index++;
 	}
@@ -78,16 +77,14 @@ struct cmd_s *get_cmd_from_name(char *needle)
 
 void print_usage()
 {
-	fprintf(stderr, "hs100 version " VERSION_STRING ", Copyright (C) 2018 Jason Benaim.\n"
-			"A tool for using certain wifi smart plugs.\n"
-			"\n"
-			"usage: hs100 <ip> <command>\n"
-			"\n"
+	fprintf(stderr, "hs100 version " VERSION_STRING
+			", Copyright (C) 2018 Jason Benaim.\n"
+			"A tool for using certain wifi smart plugs.\n\n"
+			"usage: hs100 <ip> <command>\n\n"
 			"Commands:\n"
 	);
 	int cmds_index = 0;
-	while(!cmds[cmds_index].end)
-	{
+	while (!cmds[cmds_index].end) {
 		fprintf(stderr, "\t%s\n\n", cmds[cmds_index].help);
 		cmds_index++;
 	}
@@ -96,7 +93,7 @@ void print_usage()
 
 int main(int argc, char *argv[])
 {
-	if(argc < 3) {
+	if (argc < 3) {
 		print_usage();
 		return 1;
 	}
@@ -105,17 +102,17 @@ int main(int argc, char *argv[])
 	char *response = NULL;
 
 	struct cmd_s *cmd = get_cmd_from_name(cmd_string);
-	if(cmd != NULL) {
-		if(cmd->handler != NULL)
+	if (cmd != NULL) {
+		if (cmd->handler != NULL)
 			response = cmd->handler(argc, argv);
-		else if(cmd->json != NULL)
+		else if (cmd->json != NULL)
 			response = hs100_send(plug_addr, cmd->json);
 	} else {
 		// command not recognized, so send it to the plug raw
 		response = hs100_send(plug_addr, cmd_string);
 	}
-	
-	if(response == NULL) {
+
+	if (response == NULL) {
 		fprintf(stderr, "failed to send command\n");
 		return 1;
 	}
