@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include "version.h"
 #include "comms.h"
 
