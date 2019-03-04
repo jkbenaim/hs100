@@ -1,16 +1,16 @@
-#include <stddef.h>
+#include <arpa/inet.h>
 #include <inttypes.h>
 #include <stdbool.h>
-#include <string.h>
+#include <stddef.h>
 #include <stdlib.h>
-#include <arpa/inet.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include "comms.h"
 
 bool hs100_encrypt(uint8_t *d, uint8_t *s, size_t len)
 {
-	if( d == NULL)
+	if (d == NULL)
 		return false;
 	if (s == NULL)
 		return false;
@@ -36,7 +36,7 @@ bool hs100_decrypt(uint8_t *d, uint8_t *s, size_t len)
 		return false;
 
 	uint8_t key = 0xab;
-	for(size_t i=0; i<len; i++) {
+	for (size_t i = 0; i < len; i++) {
 		uint8_t temp = key ^ s[i];
 		key = s[i];
 		d[i] = temp;
@@ -81,7 +81,7 @@ char *hs100_decode(uint8_t *s, size_t s_len)
 
 	char *outbuf = calloc(1, in_s_len + 1);
 
-	if (!hs100_decrypt((uint8_t*) outbuf, s + 4, in_s_len)) {
+	if (!hs100_decrypt((uint8_t *) outbuf, s + 4, in_s_len)) {
 		free(outbuf);
 		return NULL;
 	}
@@ -116,15 +116,15 @@ char *hs100_send(char *servaddr, char *msg)
 	send(sock, s, s_len, 0);
 	free(s);
 	uint32_t msglen;
-	size_t recvsize = recv (sock, &msglen, sizeof(msglen), MSG_PEEK);
+	size_t recvsize = recv(sock, &msglen, sizeof(msglen), MSG_PEEK);
 	if (recvsize != sizeof(msglen)) {
 		return NULL;
 	}
 	msglen = ntohl(msglen) + 4;
-	uint8_t *recvbuf = calloc(1, (size_t)msglen);
+	uint8_t *recvbuf = calloc(1, (size_t) msglen);
 	recvsize = recv(sock, recvbuf, msglen, MSG_WAITALL);
 	close(sock);
 	char *recvmsg = hs100_decode(recvbuf, msglen);
-	free (recvbuf);
+	free(recvbuf);
 	return recvmsg;
 }

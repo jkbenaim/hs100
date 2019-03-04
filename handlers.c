@@ -1,7 +1,7 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include "comms.h"
 
 char *handler_associate(int argc, char *argv[])
