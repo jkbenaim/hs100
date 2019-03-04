@@ -125,5 +125,6 @@ char *hs100_send(char *servaddr, char *msg)
 	recvsize = recv(sock, recvbuf, msglen, MSG_WAITALL);
 	close(sock);
 	char *recvmsg = hs100_decode(recvbuf, msglen);
+	free (recvbuf);
 	return recvmsg;
 }
