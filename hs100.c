@@ -78,7 +78,7 @@ struct cmd_s *get_cmd_from_name(char *needle)
 void print_usage()
 {
 	fprintf(stderr, "hs100 version " VERSION_STRING
-			", Copyright (C) 2018 Jason Benaim.\n"
+			", Copyright (C) 2018-2019 Jason Benaim.\n"
 			"A tool for using certain wifi smart plugs.\n\n"
 			"usage: hs100 <ip> <command>\n\n"
 			"Commands:\n"
