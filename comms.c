@@ -10,6 +10,9 @@
 
 bool hs100_encrypt(uint8_t *d, uint8_t *s, size_t len)
 {
+	uint8_t key, temp;
+	size_t i;
+
 	if (d == NULL)
 		return false;
 	if (s == NULL)
@@ -17,9 +20,9 @@ bool hs100_encrypt(uint8_t *d, uint8_t *s, size_t len)
 	if (len == 0)
 		return false;
 
-	uint8_t key = 0xab;
-	for (size_t i = 0; i < len; i++) {
-		uint8_t temp = key ^ s[i];
+	key = 0xab;
+	for (i = 0; i < len; i++) {
+		temp = key ^ s[i];
 		key = temp;
 		d[i] = temp;
 	}
@@ -28,6 +31,9 @@ bool hs100_encrypt(uint8_t *d, uint8_t *s, size_t len)
 
 bool hs100_decrypt(uint8_t *d, uint8_t *s, size_t len)
 {
+	uint8_t key, temp;
+	size_t i;
+
 	if (d == NULL)
 		return false;
 	if (s == NULL)
@@ -35,9 +41,9 @@ bool hs100_decrypt(uint8_t *d, uint8_t *s, size_t len)
 	if (len == 0)
 		return false;
 
-	uint8_t key = 0xab;
-	for (size_t i = 0; i < len; i++) {
-		uint8_t temp = key ^ s[i];
+	key = 0xab;
+	for (i = 0; i < len; i++) {
+		temp = key ^ s[i];
 		key = s[i];
 		d[i] = temp;
 	}
@@ -46,19 +52,23 @@ bool hs100_decrypt(uint8_t *d, uint8_t *s, size_t len)
 
 uint8_t *hs100_encode(size_t *outlen, char *srcmsg)
 {
+	size_t srcmsg_len;
+	uint8_t *d;
+	uint32_t temp;
+
 	if (srcmsg == NULL)
 		return NULL;
 
-	size_t srcmsg_len = strlen(srcmsg);
+	srcmsg_len = strlen(srcmsg);
 	*outlen = srcmsg_len + 4;
-	uint8_t *d = calloc(1, *outlen);
+	d = calloc(1, *outlen);
 	if (d == NULL)
 		return NULL;
 	if (!hs100_encrypt(d + 4, (uint8_t *) srcmsg, srcmsg_len)) {
 		free(d);
 		return NULL;
 	}
-	uint32_t temp = htonl(srcmsg_len);
+	temp = htonl(srcmsg_len);
 	memcpy(d, &temp, 4);
 
 	return d;
@@ -66,20 +76,22 @@ uint8_t *hs100_encode(size_t *outlen, char *srcmsg)
 
 char *hs100_decode(uint8_t *s, size_t s_len)
 {
+	uint32_t in_s_len;
+	char *outbuf;
+
 	if (s == NULL)
 		return NULL;
 	if (s_len <= 4)
 		return NULL;
 
-	uint32_t in_s_len;
 	memcpy(&in_s_len, s, 4);
 	in_s_len = ntohl(in_s_len);
 	if ((s_len - 4) < in_s_len) {
-		// packet was cut short- adjust in_s_len
+		/* packet was cut short- adjust in_s_len */
 		in_s_len = s_len - 4;
 	}
 
-	char *outbuf = calloc(1, in_s_len + 1);
+	outbuf = calloc(1, in_s_len + 1);
 
 	if (!hs100_decrypt((uint8_t *) outbuf, s + 4, in_s_len)) {
 		free(outbuf);
@@ -92,15 +104,21 @@ char *hs100_decode(uint8_t *s, size_t s_len)
 char *hs100_send(char *servaddr, char *msg)
 {
 	size_t s_len;
-	uint8_t *s = hs100_encode(&s_len, msg);
+	int sock;
+	uint8_t *s, *recvbuf;
+	struct sockaddr_in address;
+	uint32_t msglen;
+	size_t recvsize;
+	char *recvmsg;
+
+	s = hs100_encode(&s_len, msg);
 	if (s == NULL)
 		return NULL;
 
-	int sock = socket(AF_INET, SOCK_STREAM, 0);
+	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0)
 		return NULL;
 
-	struct sockaddr_in address;
 	memset(&address, '0', sizeof(struct sockaddr_in));
 
 	address.sin_family = AF_INET;
@@ -115,16 +133,15 @@ char *hs100_send(char *servaddr, char *msg)
 
 	send(sock, s, s_len, 0);
 	free(s);
-	uint32_t msglen;
-	size_t recvsize = recv(sock, &msglen, sizeof(msglen), MSG_PEEK);
+	recvsize = recv(sock, &msglen, sizeof(msglen), MSG_PEEK);
 	if (recvsize != sizeof(msglen)) {
 		return NULL;
 	}
 	msglen = ntohl(msglen) + 4;
-	uint8_t *recvbuf = calloc(1, (size_t) msglen);
+	recvbuf = calloc(1, (size_t) msglen);
 	recvsize = recv(sock, recvbuf, msglen, MSG_WAITALL);
 	close(sock);
-	char *recvmsg = hs100_decode(recvbuf, msglen);
+	recvmsg = hs100_decode(recvbuf, msglen);
 	free(recvbuf);
 	return recvmsg;
 }
