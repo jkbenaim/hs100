@@ -2,7 +2,7 @@ target  ?= hs100
 objects := $(patsubst %.c,%.o,$(wildcard *.c))
 
 LDFLAGS=-lm
-CFLAGS=-std=c99 -Os
+CFLAGS=-std=gnu99 -Os
 ifdef DEBUG
 CFLAGS+=-Wall -Werror -ggdb
 endif
