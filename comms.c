@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
-#include <netdb.h>
 #include <unistd.h>
 #include "comms.h"
 
@@ -107,35 +106,36 @@ char *hs100_send(char *servaddr, char *msg)
 	size_t s_len;
 	int sock;
 	uint8_t *s, *recvbuf;
-	struct addrinfo hints, *res;
+	struct sockaddr_in address;
 	uint32_t msglen;
 	size_t recvsize;
-	char *recvmsg = NULL;
+	char *recvmsg;
 
 	s = hs100_encode(&s_len, msg);
 	if (s == NULL)
 		return NULL;
 
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = PF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_NUMERICSERV; // numeric port
-
-	if (getaddrinfo(servaddr, "9999", &hints, &res) != 0)
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock < 0)
 		return NULL;
 
-	sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-	if (sock < 0)
-		goto out;
+	memset(&address, '0', sizeof(struct sockaddr_in));
 
-	if (connect(sock, res->ai_addr, res->ai_addrlen) < 0)
-		goto out;
+	address.sin_family = AF_INET;
+	address.sin_port = htons(9999);
+
+	if (inet_pton(AF_INET, servaddr, &address.sin_addr) <= 0)
+		return NULL;
+
+	if (connect(sock, (struct sockaddr *)&address,
+		sizeof(struct sockaddr_in)) < 0)
+		return NULL;
 
 	send(sock, s, s_len, 0);
 	free(s);
 	recvsize = recv(sock, &msglen, sizeof(msglen), MSG_PEEK);
 	if (recvsize != sizeof(msglen)) {
-		goto out;
+		return NULL;
 	}
 	msglen = ntohl(msglen) + 4;
 	recvbuf = calloc(1, (size_t) msglen);
@@ -143,8 +143,5 @@ char *hs100_send(char *servaddr, char *msg)
 	close(sock);
 	recvmsg = hs100_decode(recvbuf, msglen);
 	free(recvbuf);
-
-out:
-	freeaddrinfo(res);
 	return recvmsg;
 }
