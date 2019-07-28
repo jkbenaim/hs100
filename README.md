@@ -51,7 +51,7 @@ plug's AP.
 - Disable cloud nonsense by setting a bogus server URL: `hs100 192.168.0.1 set_server localhost`
 - Scan for your wifi AP using `hs100 192.168.0.1 scan`. Find your AP in the
 list and note its `key_type`; you will need this to associate.
-- Associate with your AP using `hs100 192.168.0.1 <ssid> <password> <key_type>`
+- Associate with your AP using `hs100 192.168.0.1 associate <ssid> <password> <key_type>`
 . Your key\_type is a number that indicates the kind of wifi security that
 your AP is using. You can find it by doing a wifi scan (see previous step).
 
