@@ -13,7 +13,6 @@ struct cmd_s {
 	char *help;
 	char *json;
 	char *(*handler) (int argc, char *argv[]);
-	int end;
 };
 struct cmd_s cmds[] = {
 	{
@@ -60,14 +59,14 @@ struct cmd_s cmds[] = {
 		.handler = handler_set_server,
 	},
 	{
-		.end = 1,
+		.command = NULL,
 	},
 };
 
 struct cmd_s *get_cmd_from_name(char *needle)
 {
 	int cmds_index = 0;
-	while (!cmds[cmds_index].end) {
+	while (cmds[cmds_index].command) {
 		if (!strcmp(cmds[cmds_index].command, needle))
 			return &cmds[cmds_index];
 		cmds_index++;
@@ -84,7 +83,7 @@ void print_usage()
 			"Commands:\n"
 	);
 	int cmds_index = 0;
-	while (!cmds[cmds_index].end) {
+	while (cmds[cmds_index].command) {
 		fprintf(stderr, "\t%s\n\n", cmds[cmds_index].help);
 		cmds_index++;
 	}
