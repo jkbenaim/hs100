@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include "comms.h"
 
-bool hs100_encrypt(uint8_t *d, uint8_t *s, size_t len)
+bool hs100_encrypt(uint8_t *d, const uint8_t *s, size_t len)
 {
 	uint8_t key, temp;
 	size_t i;
@@ -29,7 +29,7 @@ bool hs100_encrypt(uint8_t *d, uint8_t *s, size_t len)
 	return true;
 }
 
-bool hs100_decrypt(uint8_t *d, uint8_t *s, size_t len)
+bool hs100_decrypt(uint8_t *d, const uint8_t *s, size_t len)
 {
 	uint8_t key, temp;
 	size_t i;
@@ -50,7 +50,7 @@ bool hs100_decrypt(uint8_t *d, uint8_t *s, size_t len)
 	return true;
 }
 
-uint8_t *hs100_encode(size_t *outlen, char *srcmsg)
+uint8_t *hs100_encode(size_t *outlen, const char *srcmsg)
 {
 	size_t srcmsg_len;
 	uint8_t *d;
@@ -74,7 +74,7 @@ uint8_t *hs100_encode(size_t *outlen, char *srcmsg)
 	return d;
 }
 
-char *hs100_decode(uint8_t *s, size_t s_len)
+char *hs100_decode(const uint8_t *s, size_t s_len)
 {
 	uint32_t in_s_len;
 	char *outbuf;
@@ -101,7 +101,7 @@ char *hs100_decode(uint8_t *s, size_t s_len)
 	return outbuf;
 }
 
-char *hs100_send(char *servaddr, char *msg)
+char *hs100_send(const char *servaddr, const char *msg)
 {
 	size_t s_len;
 	int sock;
