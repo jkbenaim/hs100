@@ -11,3 +11,4 @@ clean:
 	rm -f $(target) $(objects)
 
 $(target): $(objects)
+	$(CC) -o $@ $(objects)
