@@ -1,17 +1,7 @@
-target  ?= hs100
-objects := $(patsubst %.c,%.o,$(wildcard *.c))
+target  = hs100
+objects = comms.o handlers.o hs100.o
 
-libs:=
-
-EXTRAS += -fsanitize=undefined -fsanitize=null -fcf-protection=full -fstack-protector-all -fstack-check -Wimplicit-fallthrough
-
-ifdef libs
-LDLIBS  += $(shell pkg-config --libs   ${libs})
-CFLAGS  += $(shell pkg-config --cflags ${libs})
-endif
-
-LDFLAGS += ${EXTRAS}
-CFLAGS  += -std=gnu99 -ggdb ${EXTRAS}
+CFLAGS  = -std=gnu99
 
 .PHONY: all
 all:	$(target)
