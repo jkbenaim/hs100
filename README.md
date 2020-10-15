@@ -60,6 +60,11 @@ reset the plug and try again. Otherwise, the light on your plug will change
 first to blinking blue, then to solid blue indicating that it has successfully
 connected to your AP.
 
+## Build
+
+Ubuntu instructions
+You will need `make` and `build-essential` installed. Then run `make`. This will produce a `hs100` binary which you can use. E.g. `./hs100 192.168.0.1 off`
+
 ## Todo
 
 - better error checking
