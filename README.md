@@ -63,7 +63,7 @@ connected to your AP.
 ## Build
 
 Ubuntu instructions
-You will need `make` and `build-essential` installed. Then run `make`. This will produce a `hs100` binary which you can use. E.g. `./hs100 192.168.0.1 off`
+You will need `build-essential` installed. Then run `make`. This will produce a `hs100` binary which you can use. E.g. `./hs100 192.168.0.1 off`
 
 ## Todo
 
