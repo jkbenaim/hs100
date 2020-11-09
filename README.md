@@ -16,6 +16,7 @@ Loosely based on [pyHS100](https://github.com/GadgetReactor/pyHS100) and
 Commands:
 - `associate <ssid> <key> <key_type>`: set wifi AP to connect to. get your
 key\_type by doing a scan
+- `emeter`: realtime power consumption (only works with HS110)
 - `factory-reset`: reset the plug to factory settings
 - `off`: turn the power off
 - `on`: turn the power on
