@@ -1,7 +1,7 @@
 # hs100
 
-A tool for using TP-Link HS100/HS105/HS110 wi-fi smart plugs. You can turn
-them on and off, reboot them, and so on. You can even set them up without
+A tool for using TP-Link HS100/HS103/HS105/HS110 wi-fi smart plugs. You can
+turn them on and off, reboot them, and so on. You can even set them up without
 using TP-Link's app (see Initial Setup).
 
 Tested to work on Linux, OSX, IRIX, and Windows under WSL.
