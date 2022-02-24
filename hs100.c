@@ -22,6 +22,11 @@ struct cmd_s cmds[] = {
 		.handler = handler_associate,
 	},
 	{
+		.command = "emeter",
+		.help = "emeter\t\tget realtime power consumption (only works with HS110)",
+		.json = "{\"emeter\":{\"get_realtime\":{}}}",
+	},
+	{
 		.command = "factory-reset",
 		.help = "factory-reset\treset the plug to factory settings",
 		.json = "{\"system\":{\"reset\":{\"delay\":0}}}",
