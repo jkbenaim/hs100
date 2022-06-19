@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "comms.h"
+#include "escape.h"
 
 char *handler_associate(int argc, char *argv[])
 {
@@ -17,14 +18,19 @@ char *handler_associate(int argc, char *argv[])
 	int key_type_num;
 	size_t len;
 
+	if (password)
+		password = escape_json(password);
+
 	if (argc < 6) {
 		fprintf(stderr, "not enough arguments\n");
+		free(password);
 		exit(1);
 	}
 	errno = 0;
 	key_type_num = (int)strtol(key_type, &endptr, 10);
 	if (errno || endptr == key_type) {
 		fprintf(stderr, "invalid key type: %s\n", key_type);
+		free(password);
 		exit(1);
 	}
 
@@ -36,7 +42,7 @@ char *handler_associate(int argc, char *argv[])
 	snprintf(msg, len, template, ssid, password, key_type_num);
 
 	response = hs100_send(plug_addr, msg);
-
+	free(password);
 	return response;
 }
 

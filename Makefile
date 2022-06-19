@@ -1,5 +1,5 @@
 target  = hs100
-objects = comms.o handlers.o hs100.o
+objects = comms.o handlers.o hs100.o escape.o
 
 CFLAGS  = -std=gnu99
 
