@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include "comms.h"
+#include <netdb.h>
 
 bool hs100_encrypt(uint8_t *d, const uint8_t *s, size_t len)
 {
@@ -125,11 +126,25 @@ char *hs100_send(const char *servaddr, const char *msg)
 	address.sin_family = AF_INET;
 	address.sin_port = htons(9999);
 
-	if (inet_pton(AF_INET, servaddr, &address.sin_addr) <= 0)
-		return NULL;
+	if (inet_pton(AF_INET, servaddr, &address.sin_addr) <= 0) {
+                struct hostent *lh = gethostbyname(servaddr);
 
-	if (connect(sock, (struct sockaddr *)&address,
-		sizeof(struct sockaddr_in)) < 0)
+                if (lh == NULL) {
+		        return NULL;
+                }
+
+                if (lh->h_addrtype != AF_INET) {
+		        return NULL;
+                }
+
+                if (lh->h_addr_list[0] == NULL) {
+		        return NULL;
+                }
+
+                memcpy(&address.sin_addr, lh->h_addr_list[0], lh->h_length);
+        }
+
+	if (connect(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) < 0)
 		return NULL;
 
 	send(sock, s, s_len, 0);
