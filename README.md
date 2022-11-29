@@ -1,8 +1,7 @@
 # hs100
 
-A tool for using TP-Link HS100/HS103/HS105/HS110 wi-fi smart plugs. You can
-turn them on and off, reboot them, and so on. You can even set them up without
-using TP-Link's app (see Initial Setup).
+A tool for using TP-Link HS100/HS103/HS105/HS110/HS300 wi-fi smart plugs.
+You can turn them on and off, reboot them, and so on. You can even set them up without using TP-Link's app (see Initial Setup).
 
 Tested to work on Linux, OSX, IRIX, and Windows under WSL.
 
@@ -16,7 +15,8 @@ Loosely based on [pyHS100](https://github.com/GadgetReactor/pyHS100) and
 Commands:
 - `associate <ssid> <key> <key_type>`: set wifi AP to connect to. get your
 key\_type by doing a scan
-- `emeter`: realtime power consumption (only works with HS110)
+- `info`: get device information including device IDs
+- `emeter`: realtime power consumption (works with HS110 and HS300)
 - `factory-reset`: reset the plug to factory settings
 - `off`: turn the power off
 - `on`: turn the power on
@@ -26,6 +26,14 @@ key\_type by doing a scan
 - Alternatively, you can supply a JSON string to be sent directly to the
 device. Note that the JSON string must be quoted, like so:
 `hs100 <ip> '{"system":{"set_relay_state":{"state":1}}}'`
+
+### Use with Outlet Strips (such as HS300)
+
+The `emeter`, `off` and `on` commands can be used on the individual outlets of multiple outlet strips.
+
+- use the `info` command to get the ID string of the outlet you want to control
+- append the ID string to the command line for `emeter`, `off` or `on` like so:
+`hs100 <ip> on 80062947BE0A1339DC7914B75B24A6A51FB6977E02`
 
 ## Initial Setup
 
