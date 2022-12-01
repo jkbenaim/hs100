@@ -7,6 +7,8 @@
 // handlers for more complicated commands
 extern char *handler_associate(int argc, char *argv[]);
 extern char *handler_set_server(int argc, char *argv[]);
+extern char *handler_set_relay_state(int argc, char *argv[]);
+extern char *handler_get_realtime(int argc, char *argv[]);
 
 struct cmd_s {
 	char *command;
@@ -24,6 +26,7 @@ struct cmd_s cmds[] = {
 	{
 		.command = "emeter",
 		.help = "emeter\t\tget realtime power consumption (only works with HS110)",
+		.handler = handler_get_realtime,
 		.json = "{\"emeter\":{\"get_realtime\":{}}}",
 	},
 	{
@@ -38,12 +41,14 @@ struct cmd_s cmds[] = {
 	},
 	{
 		.command = "off",
-		.help = "off\t\tturn the plug on",
+		.help = "off\t\tturn the plug off",
+		.handler = handler_set_relay_state,
 		.json = "{\"system\":{\"set_relay_state\":{\"state\":0}}}",
 	},
 	{
 		.command = "on",
-		.help = "on\t\tturn the plug off",
+		.help = "on\t\tturn the plug on",
+		.handler = handler_set_relay_state,
 		.json = "{\"system\":{\"set_relay_state\":{\"state\":1}}}",
 	},
 	{
@@ -109,7 +114,7 @@ int main(int argc, char *argv[])
 	if (cmd != NULL) {
 		if (cmd->handler != NULL)
 			response = cmd->handler(argc, argv);
-		else if (cmd->json != NULL)
+		if ((response == NULL) && (cmd->json != NULL))
 			response = hs100_send(plug_addr, cmd->json);
 	} else {
 		// command not recognized, so send it to the plug raw

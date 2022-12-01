@@ -69,3 +69,54 @@ char *handler_set_server(int argc, char *argv[])
 
 	return response;
 }
+
+char *handler_set_relay_state(int argc, char *argv[])
+{
+	const char *template =
+		"{\"context\":{\"child_ids\":[\"%s\"]},"
+		"\"system\":{\"set_relay_state\":{\"state\":%c}}}";
+	char *plug_addr = argv[1];
+	char *onoff = argv[2];
+	char *plug = argv[3];
+	size_t len;
+	char *msg, *response;
+
+	if (argc < 4) {
+		return NULL;
+	}
+
+	len = snprintf(NULL, 0, template, plug, (onoff[1] == 'n' ? '1' : '0'));
+	len++;	/* snprintf does not count the null terminator */
+
+	msg = calloc(1, len);
+	snprintf(msg, len, template, plug, (onoff[1] == 'n' ? '1' : '0'));
+
+	response = hs100_send(plug_addr, msg);
+
+	return response;
+}
+
+char *handler_get_realtime(int argc, char *argv[])
+{
+	const char *template =
+		"{\"context\":{\"child_ids\":[\"%s\"]},"
+		"\"emeter\":{\"get_realtime\":{}}}";
+	char *plug_addr = argv[1];
+	char *plug = argv[3];
+	size_t len;
+	char *msg, *response;
+
+	if (argc < 4) {
+		return NULL;
+	}
+
+	len = snprintf(NULL, 0, template, plug);
+	len++;	/* snprintf does not count the null terminator */
+
+	msg = calloc(1, len);
+	snprintf(msg, len, template, plug);
+
+	response = hs100_send(plug_addr, msg);
+
+	return response;
+}
