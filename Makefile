@@ -3,10 +3,10 @@ objects = comms.o handlers.o hs100.o escape.o
 
 CFLAGS  = -std=gnu99 -Wall -Werror
 
-OS := $(shell uname -s | tr "[:upper:]" "[:lower:]")
-$(info OS="$(OS)")
+MACHINE := $(shell $(CC) -dumpmachine)
+$(info MACHINE="$(MACHINE)")
 
-ifneq (,$(findstring mingw,$(OS)))
+ifneq (,$(findstring mingw,$(MACHINE)))
     LDFLAGS = -lws2_32
 else
     LDFLAGS = -lresolv
