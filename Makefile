@@ -1,8 +1,16 @@
 target  = hs100
 objects = comms.o handlers.o hs100.o escape.o
 
-CFLAGS  = -std=gnu99
-LDFLAGS = -lresolv
+CFLAGS  = -std=gnu99 -Wall -Werror
+
+OS := $(shell uname -s | tr "[:upper:]" "[:lower:]")
+$(info OS="$(OS)")
+
+ifneq (,$(findstring mingw,$(OS)))
+    LDFLAGS = -lws2_32
+else
+    LDFLAGS = -lresolv
+endif
 
 .PHONY: all
 all:	$(target)

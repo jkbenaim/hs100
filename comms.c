@@ -1,14 +1,21 @@
-#include <arpa/inet.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
 #include <unistd.h>
+
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <arpa/inet.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
-#include "comms.h"
 #include <netdb.h>
+#endif /* _WIN32 */
+
+#include "comms.h"
 
 bool hs100_encrypt(uint8_t *d, const uint8_t *s, size_t len)
 {
@@ -106,20 +113,38 @@ char *hs100_decode(const uint8_t *s, size_t s_len)
 char *hs100_send(const char *servaddr, const char *msg)
 {
 	size_t s_len;
-	int sock;
-	uint8_t *s, *recvbuf;
 	struct sockaddr_in address;
-	uint32_t msglen;
-	size_t recvsize;
 	char *recvmsg;
+	uint32_t msglen;
+#ifdef _WIN32
+	char *s, *recvbuf;
+	int recvsize;
+	unsigned int sock;
+	WSADATA d;
+
+	s = (char *)hs100_encode(&s_len, msg);
+#else
+	uint8_t *s, *recvbuf;
+	int sock;
+	size_t recvsize;
 
 	s = hs100_encode(&s_len, msg);
+#endif /* _WIN32 */
+
 	if (s == NULL)
 		return NULL;
 
+#ifdef _WIN32
+	if (WSAStartup(MAKEWORD(2, 2), &d))
+		return NULL;
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock == INVALID_SOCKET)
+		return NULL;
+#else
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0)
 		return NULL;
+#endif /* _WIN32 */
 
 	memset(&address, '0', sizeof(struct sockaddr_in));
 
@@ -144,20 +169,26 @@ char *hs100_send(const char *servaddr, const char *msg)
                 memcpy(&address.sin_addr, lh->h_addr_list[0], lh->h_length);
         }
 
-	if (connect(sock, (struct sockaddr *)&address, sizeof(struct sockaddr_in)) < 0)
+	if (connect(sock, (const struct sockaddr*)&address, sizeof(struct sockaddr_in)) < 0)
+	{
 		return NULL;
+	}
 
 	send(sock, s, s_len, 0);
 	free(s);
-	recvsize = recv(sock, &msglen, sizeof(msglen), MSG_PEEK);
+	recvsize = recv(sock, (char *)&msglen, sizeof(msglen), MSG_PEEK);
 	if (recvsize != sizeof(msglen)) {
 		return NULL;
 	}
 	msglen = ntohl(msglen) + 4;
 	recvbuf = calloc(1, (size_t) msglen);
 	recvsize = recv(sock, recvbuf, msglen, MSG_WAITALL);
+#ifdef _WIN32
+	closesocket(sock);
+#else
 	close(sock);
-	recvmsg = hs100_decode(recvbuf, msglen);
+#endif /* _WIN32 */
+	recvmsg = hs100_decode((const uint8_t *)recvbuf, msglen);
 	free(recvbuf);
 	return recvmsg;
 }

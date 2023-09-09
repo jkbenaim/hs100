@@ -19,7 +19,7 @@ char *handler_associate(int argc, char *argv[])
 	size_t len;
 
 	if (password)
-		password = escape_json(password);
+		password = (char *)escape_json((const unsigned char *)password);
 
 	if (argc < 6) {
 		fprintf(stderr, "not enough arguments\n");
