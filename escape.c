@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include "escape.h"
 
-unsigned char *escape_json(const unsigned char *orig)
+char *escape_json(const char *orig)
 {
-	unsigned char *out = NULL;
+	char *out = NULL;
 	size_t len = 0;
-	unsigned char *outp;
+	char *outp;
 
 	out = malloc(strlen((const char *)orig) * 2 + 1);
 	if (!out) {
