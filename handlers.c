@@ -4,6 +4,7 @@
 #include <string.h>
 #include "comms.h"
 #include "escape.h"
+#include "handlers.h"
 
 char *handler_associate(int argc, char *argv[])
 {

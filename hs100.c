@@ -3,17 +3,12 @@
 #include <string.h>
 #include "version.h"
 #include "comms.h"
-
-// handlers for more complicated commands
-extern char *handler_associate(int argc, char *argv[]);
-extern char *handler_set_server(int argc, char *argv[]);
-extern char *handler_set_relay_state(int argc, char *argv[]);
-extern char *handler_get_realtime(int argc, char *argv[]);
+#include "handlers.h"
 
 struct cmd_s {
-	char *command;
-	char *help;
-	char *json;
+	const char *command;
+	const char *help;
+	const char *json;
 	char *(*handler) (int argc, char *argv[]);
 };
 struct cmd_s cmds[] = {
@@ -73,7 +68,7 @@ struct cmd_s cmds[] = {
 	},
 };
 
-struct cmd_s *get_cmd_from_name(char *needle)
+static struct cmd_s *get_cmd_from_name(char *needle)
 {
 	int cmds_index = 0;
 	while (cmds[cmds_index].command) {
@@ -84,7 +79,7 @@ struct cmd_s *get_cmd_from_name(char *needle)
 	return NULL;
 }
 
-void print_usage()
+static void print_usage(void)
 {
 	fprintf(stderr, "hs100 version " VERSION_STRING
 			", Copyright (C) 2018-2019 Jason Benaim.\n"
